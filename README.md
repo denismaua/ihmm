@@ -49,7 +49,7 @@ The algorithms accept iHHMs specified thorugh interval-valued probabilities. Mos
     p1 p2 ... pN
     # blank or comment line at the end
 
-In the above file, N denotes the number of values of hidden variables and M the number of values of manifest bariables. For transition probabilities, p[N*j+i] denotes Pr(Q'=i|Q=j), so e.g. pN+1 = Pr(Q'=1|Q=2). For emission probabilities p[N*i+j] = Pr(O=j|Q=i), and for prior probabilities p[i] = Pr(Q=i). The syntax for non-homogenous models is similar, with the first line denoting the number of steps, and each row describing distributions containing the probabilities for all time steps separated by spaces.
+In the above file, N denotes the number of values of hidden variables and M the number of values of manifest bariables. For transition probabilities, `p[N*j+i]` denotes Pr(Q'=i|Q=j), so e.g. `pN+1` = Pr(Q'=1|Q=2). For emission probabilities `p[N*i+j]` = Pr(O=j|Q=i), and for prior probabilities `p[i]` = Pr(Q=i). The syntax for non-homogenous models is similar, with the first line denoting the number of steps, and each row describing distributions containing the probabilities for all time steps separated by spaces.
 
 See files `weather.model` and `cweather.model` for examples of homogeneous (precise) HMMs and iHMMs. Non-homogeneous models are specified in a syntax similar to the above, except that the first line contains the horizon (number of steps), the number of states and symbols might change in each step (hence need to be specified), as well as the transition and emission probability itnervals. See `weather2.model` for an non-homogenous version of `weather.model` (with five time steps).
 
@@ -77,3 +77,23 @@ Running an executable with no parameters outputs its usage.
 ## LICENSE ##
 
 This code is distributed under GPL 2 license. See file LICENSE.
+
+## CITATION ##
+
+If you use this library in an academic work, please cite
+
+Denis Deratani Maua, Cassio Polpo de Campos and Alessandro
+Antonucci, 2014. **Algorithms for Hidden Markov Models with Imprecisely
+Specified Parameters**. _In_ Proceedings of the Brazilian Conference on
+Intelligent Systems (BRACIS), pp. 186--191.
+
+	@inproceedings{MauaCA14,
+		author    = {Denis Deratani Mau{\'{a}} and
+		                   Cassio Polpo de Campos and
+					       Alessandro Antonucci},
+	    title     = {Algorithms for Hidden Markov Models with Imprecisely Specified Parameters},
+		booktitle = {Proceedings of the 2014 Brazilian Conference on Intelligent Systems ({BRACIS})},
+		pages     = {186--191},
+		year      = {2014},
+		doi       = {10.1109/BRACIS.2014.42}
+	}

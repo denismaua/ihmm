@@ -1,13 +1,11 @@
-# IMPRECISE HIDDEN MARKOV MODEL INFERENCE LIBRARY #
-
-	#######################################################
-	### IMPRECISE HIDDEN MARKOV MODEL INFERENCE LIBRARY ###
-	### (C) 2015 Denis D. Maua                          ###
-	###                                                 ###
-	### Implements inference algorithms for hidden      ###
-	### Marvov models with imprecisely specified        ###
-	### parameters.                                     ###
-	#######################################################
+#######################################################
+### IMPRECISE HIDDEN MARKOV MODEL INFERENCE LIBRARY ###
+### (C) 2015 Denis D. Maua                          ###
+###                                                 ###
+### Implements inference algorithms for hidden      ###
+### Marvov models with imprecisely specified        ###
+### parameters.                                     ###
+#######################################################
 
 ## OVERVIEW ##
 
@@ -82,3 +80,12 @@ Running an executable with no parameters outputs its usage.
 ## LICENSE ##
 
 This code is distributed under GPL license.
+
+## CITATION ##
+
+If you use this library in an academic work, please cite
+
+   Denis Deratani Maua, Cassio Polpo de Campos and Alessandro
+   Antonucci, 2014. Algorithms for Hidden Markov Models with Imprecisely
+   Specified Parameters. In Brazilian Conference on Intelligent Systems
+   (BRACIS), pp. 186--191.
