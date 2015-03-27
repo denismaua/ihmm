@@ -1,0 +1,22 @@
+### SIMPLE EXAMPLE OF A NON-HOMOGENOUS PRECISE MODEL
+# number of time steps K
+5
+# number of states
+2 2 2 2 2
+# number of symbols
+3 3 3 3 3
+# lower transition probabilities
+# Syntax: P(Q_2=1|Q_1=1) P(Q_2=2|Q_1=1) P(Q_2=1|Q_1=2) P(Q_2=2|Q_1=2) P(Q_3=1|Q_2=1) P(Q_3=2|Q_2=1) P(Q_3=1|Q_2=2) P(Q_3=2|Q_2=2) P(Q_4=1|Q_2=1) P(Q_4=2|Q_2=1) P(Q_4=1|Q_2=2) P(Q_4=2|Q_2=2) P(Q_5=1|Q_2=1) P(Q_5=2|Q_2=1) P(Q_5=1|Q_2=2) P(Q_5=2|Q_2=2)
+0.7 0.3 0.4 0.6 0.7 0.3 0.4 0.6 0.7 0.3 0.4 0.6 0.7 0.3 0.4 0.6
+# upper transition probabilities
+0.7 0.3 0.4 0.6 0.7 0.3 0.4 0.6 0.7 0.3 0.4 0.6 0.7 0.3 0.4 0.6
+# Syntax: P(O_1=1|Q_1=1) P(O_1=2|Q_1=1) P(O_1=3|Q_1=1) P(O_1=1|Q_1=2) P(O_1=2|Q_1=2) P(O_1=3|Q_1=2) P(O_2=1|Q_2=1) P(O_2=2|Q_2=1) P(O_2=3|Q_2=1) P(O_2=1|Q_2=2) P(O_2=2|Q_2=2) P(O_2=3|Q_2=2) P(O_3=1|Q_3=1) P(O_3=2|Q_3=1) P(O_3=3|Q_3=1) P(O_3=1|Q_3=2) P(O_3=2|Q_3=2) P(O_3=3|Q_3=2) P(O_4=1|Q_4=1) P(O_4=2|Q_4=1) P(O_4=3|Q_4=1) P(O_4=1|Q_4=2) P(O_4=2|Q_4=2) P(O_4=3|Q_4=2) P(O_5=1|Q_5=1) P(O_5=2|Q_5=1) P(O_5=3|Q_5=1) P(O_5=1|Q_5=2) P(O_5=2|Q_5=2) P(O_5=3|Q_5=2)
+# lower emission probabilities
+0.1 0.4 0.5 0.6 0.3 0.1 0.1 0.4 0.5 0.6 0.3 0.1 0.1 0.4 0.5 0.6 0.3 0.1 0.1 0.4 0.5 0.6 0.3 0.1 0.1 0.4 0.5 0.6 0.3 0.1
+# upper emission probabilities
+0.1 0.4 0.5 0.6 0.3 0.1 0.1 0.4 0.5 0.6 0.3 0.1 0.1 0.4 0.5 0.6 0.3 0.1 0.1 0.4 0.5 0.6 0.3 0.1 0.1 0.4 0.5 0.6 0.3 0.1
+# Syntax: P(Q_1=1) P(Q_1=2)
+# lower prior probabilities
+0.6 0.4
+# upper prior probabilities
+0.6 0.4
