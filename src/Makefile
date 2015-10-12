@@ -17,7 +17,7 @@ SOURCES = `ls *.cpp`
 OBJS=$(subst .cpp,.o,$(SOURCES))
 EXEDIR = ../bin
 # Executables
-EXE = filter viterbi likelihood 
+EXE = filter viterbi likelihood likelihood2
 
 
 all: ${EXE}
@@ -41,6 +41,10 @@ enum_mpe: 	inference.o utils.o enum_mpe.o
 likelihood:	inference.o utils.o likelihood.o
 	@echo 'linking likelihood...'
 	${CC} -o ${EXEDIR}/likelihood $^ ${LIBS}
+
+likelihood2:	inference.o utils.o likelihood2.o
+	@echo 'linking likelihood2...'
+	${CC} -o ${EXEDIR}/likelihood2 $^ ${LIBS}
 
 filter:		inference.o utils.o filtering.o
 	@echo 'linking filter...'

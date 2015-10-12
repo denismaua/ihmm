@@ -1,23 +1,23 @@
 /* 
  * imprecise hidden Markov model
  *
- * joint maximin and maximax MPE inference algorithm
+ * upper and lower log-likelihood inference algorithm
+ * non-stationary models
  * 
- * Compute the most likely state sequence of a given 
+ * Compute the upper and lower probabilities of a
  * separately specified imprecise hidden Markov model
- * for a given sequence of observations using joint
- * probability criteria
+ * for a given sequence of observations
  *
  * See COPYRIGHT and VERSION files for copyright and version info
  *
  */
+
 using namespace std;
 #include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <vector>
 #include <utility>
 #include <cmath>
 #include <ctime>
@@ -25,40 +25,35 @@ using namespace std;
 #include <unistd.h>
 
 #include "inference.h"
-#include "version.h"
 #include "utils.h"
+#include "version.h"
 
 void usage(char*); // print usage message
 
 int main(int argc, char* argv[]) {
 
   /* Print program info */
-  print_info("Most Likely State Sequence"); // show distribution info
+  print_info("Log-likelihood Inference"); // show distribution info
 
-  cout.precision(15); // set high output precision
+  cout.precision(15); // set high output precision    
 	
   /* Model specification */
-  unsigned int N = 0, M = 0;
-  NUM *Al, *Au, *Bl, *Bu, *Pl, *Pu;
+  unsigned int* N; unsigned int *M;
+  NUM **Al, **Au, **Bl, **Bu;
+  NUM *Pl, *Pu;
   /* Input length */
   unsigned int K = 0;
   /* observation sequence */
   unsigned int *O;
-    
+	
   /* Parse command line with getopt */
   int c;
   opterr = 0;
-
-  // default parameter values
-  int debug = 0; // print out extra info?
-  int maxmax = 0; // use maxmax mpe instead of maxmin
+  int debug = 0; // output additional information
   int opt = 1; // use quick select as optimization routine
   int usesecs = 0; // report time in seconds
-  bool scaling = 1; /* use scaling - not implemented
-			0 - no
-			1 - yes      */
-
-  while ((c = getopt (argc, argv, "dhmno:s")) != -1)
+	
+  while ((c = getopt (argc, argv, "dho:s")) != EOF)
     switch (c)
       {
       case 'd':
@@ -69,14 +64,6 @@ int main(int argc, char* argv[]) {
 	usage(argv[0]);
 	return 1;
 	break;		
-      case 'm':
-	// use maxmax instead of maxmin
-	maxmax = 1;
-	break;
-      case 'n':
-	// scaling
-	scaling = 0;
-	break;
       case 'o':
 	opt = atoi(optarg);
 	if (opt > 2) opt = 1;
@@ -105,19 +92,12 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 	
-  char *ifilename = argv[optind];
+  char *ifilename = argv[optind] ;
   char *dfilename = argv[optind+1];
   char *ofilename = argv[optind+2];
-
-  // report options
+	
   cout << "model filename: " << ifilename << endl;
   cout << " data filename: " << dfilename << endl;
-  cout << "      criteria: ";
-  if (maxmax)
-    cout << "maximax";
-  else
-    cout << "maximin";
-  cout << endl;
   cout << "        solver: ";
   if (opt == 0)
     cout << "greedy knapsack";        
@@ -126,28 +106,28 @@ int main(int argc, char* argv[]) {
   else if (opt == 2)
     cout << "greedy heapsort knapsack";
   else
-    cout << "unknown";
-  cout << endl;
-  cout << "       scaling: ";
-  if (scaling)
-    cout << "on";        
-  else if (maxmax)
-    cout << "off";
+    cout << "unknown";  
   cout << endl << endl;
 	
   // load model from file
-  bool error = load_model(Al, Au, Bl, Bu, Pl, Pu, N, M, ifilename);
+  bool error = load_model2(Al, Au, Bl, Bu, Pl, Pu, N, M, K, ifilename);
   if (error) {
     cout << "Error loading model from file" << endl;
     return 1;
   }
 
-  cout << "N: " << N << endl;
-  cout << "M: " << M << endl;
+  cout << "T: " << K << endl;
+  cout << "N: "; for (unsigned n=0;n<K;n++) cout << N[n] << " ";
+  cout << endl;
+  cout << "M: "; for (unsigned n=0;n<K;n++) cout << M[n] << " ";
+  cout  << endl;
+
 	
-  vector<sequence> D; // dataset
   // read observations from file
-  error = load_data(D, K, M, dfilename);
+    
+  vector<sequence> D; // dataset 
+  // read observations from file
+  error = load_data2(D, K, M, dfilename);
   if (error) {
     cout << "Error loading data from file" << endl;
     return 1;
@@ -157,39 +137,16 @@ int main(int argc, char* argv[]) {
 	
   if (debug) {
 		
-    print_probabilities(Al, Au, Bl, Bu, Pl, Pu, N, M);
+    print_probabilities2(Al, Au, Bl, Bu, Pl, Pu, N, M, K);
     print_observations(D);
 
   } 
   cout << endl;
 
-  if (!is_reachable(Pl,Pu,N))
-    cerr << "*** Warning: prior probability intervals are not reachable *** " << endl << endl;
-
-  for (unsigned int i=0; i < N; ++i) {
-    NUM* l = Al + i*N; // select local transition credal set A_i
-    NUM* u = Au + i*N;
-    if (!is_reachable(l,u,N))
-      cerr << "*** Warning: transition probability intervals are not reachable ***" << endl << endl;
-  }
-  
-  for (unsigned int i=0; i < N; ++i) {
-    // select local emission credal set B_i
-    NUM* l = new NUM[M];
-    for (unsigned j=0; j<M; j++)
-      l[j] = Bl[j*N+i]; 
-    NUM* u = new NUM[M];
-    for (unsigned j=0; j<M; j++)
-      u[j] = Bu[j*N+i]; 
-    if (!is_reachable(l,u,M)) {
-      cerr << "*** Warning: emission probability intervals are not reachable ***" << endl << endl;
-    }
-  }
-  
+	
   /* for elapsed time measuring */
   unsigned int time[3];	
   double istart, iend;
-  NUM prob;
 	
   ofstream ofs; // open stream
   ofs.open(ofilename);
@@ -197,13 +154,10 @@ int main(int argc, char* argv[]) {
     cerr << "Error: file " << ofilename << " could not be opened" << endl;
     return 1;
   }
-        
-  unsigned int *q; // most likely state sequence
-
+	
   for (unsigned int s=0; s<D.size(); ++s) {
-       
+        
     K = D[s].size();
-    q = new unsigned int[K];
     O = new unsigned int[K];
     if (O==NULL) {
       cerr << "Could not initialize observation vector!" << endl;
@@ -213,20 +167,20 @@ int main(int argc, char* argv[]) {
     unsigned int t=0;
     for (sequence::iterator o = D[s].begin(); o != D[s].end(); ++o,++t)
       O[t] = *o;
-
+        
     cout << "#" << (s+1) <<"/" << D.size() << endl;
     cout << "T: " << K << endl;
-	
-    istart = getcputime();       // record starting time
-    if (maxmax) // run viterbi algorithm with upper bounds
-      prob = viterbi(Au,Bu,Pu,O,N,M,K,q,debug,opt); 
-    else // run viterbi algorithm with lower bounds
-      prob = viterbi(Al,Bl,Pl,O,N,M,K,q,debug,opt); 
-    iend = getcputime();
-    if (!scaling)
-      cout << scientific << "PROB: " << exp(prob) << endl;         
-    else
-      cout << scientific << "logPROB: " << prob << endl;
+        
+    istart = getcputime();       // record starting time            
+    // run algorithm
+    pair<NUM,NUM> ll = likelihood2(Al,Au,Bl,Bu,Pl,Pu,O,N,M,K,debug);
+    iend = getcputime();         // record finishing time
+        
+    // output result
+    cout << "LL: [" << ll.first << ", " << ll.second << "]" << endl;
+    ofs << ll.first << " " << ll.second << endl;
+
+
     // Compute inference running time
     cout << "Inference running time: ";
     if (usesecs)  // report time in secs
@@ -236,21 +190,12 @@ int main(int argc, char* argv[]) {
       cout << fixed << time[0] << "h " << time[1] << "m " << time[2] << "s" <<  endl;
     }
     cout << endl;
-    // output result
-
-    // save estimated state sequence
-    for (t=0; t < K; ++t)
-      ofs << q[t] << " ";
-    ofs << endl;
         
     // free memory
-    delete [] q;
     delete [] O;
-    
   }
   ofs.close();
-        
-	
+    
   // Total elapsed time
   double etime = getcputime();
   difftime(0,etime,time);
@@ -258,26 +203,16 @@ int main(int argc, char* argv[]) {
   cout << "Total running time: " << fixed << time[0] << "h " << time[1] << "m " << time[2] << "s" <<  endl;
   cout << endl;
     
-  // free memory
-  delete [] Al;
-  delete [] Au;
-  delete [] Bl;
-  delete [] Bu;
-  delete [] Pl;
-  delete [] Pu;
-
   return 0;
 }
 
 void usage(char* program_name) {
   /* Print out usage message */
-  cout << "Usage: " << program_name << " [-dhmo:s] model_filename data_filename output_filename\n\n";
-  cout << "\t-d\t debug mode              [off]\n";
-  cout << "\t-m\t use maximax criteria    [off]\n";
-  cout << "\t-n\t do not use scaling      [off]\n";
-  cout << "\t-o\t optimization algorithm  [1]\n";
-  /* 0: greedy knapsack   1: quickselect knapsack      2: heapsort knapsack */
-  cout << "\t-s\t report time in secs     [off]\n";
+  cout << "Usage: " << program_name << " [-dho:s] model_filename data_filename output_filename\n\n";
+  cout << "\t-d\t debug mode               [off]\n";
   cout << "\t-h\t Print out usage information (this)\n";
+  //cout << "\t-n\t do not use scaling      [off]\n"; // not implemented
+  cout << "\t-o\t optimization algorithm  [1]\n";
+  cout << "\t-s\t report time in secs     [off]\n";
   cout << endl;
 }
